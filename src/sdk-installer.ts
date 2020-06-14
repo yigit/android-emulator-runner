@@ -6,20 +6,16 @@ const CMDLINE_TOOLS_URL_MAC = 'https://dl.google.com/android/repository/commandl
 const CMDLINE_TOOLS_URL_LINUX = 'https://dl.google.com/android/repository/commandlinetools-linux-6514223_latest.zip';
 
 async function hasCommandlineTools() {
-  let myOutput = '';
   let myError = '';
 
   const options = {
-    listeners : {
-      stdout: (data: Buffer) => {
-        myOutput += data.toString();
-      },
+    listeners: {
       stderr: (data: Buffer) => {
         myError += data.toString();
       }
     }
   };
-  await exec.exec(`sudo ls ${process.env.ANDROID_HOME}/cmdline-tools`);
+  await exec.exec(`sudo ls ${process.env.ANDROID_HOME}/cmdline-tools`, [], options);
   return myError != '';
 }
 /**
@@ -28,7 +24,7 @@ async function hasCommandlineTools() {
  */
 export async function installAndroidSdk(apiLevel: number, target: string, arch: string, emulatorBuild?: string, ndkVersion?: string, cmakeVersion?: string): Promise<void> {
   const isOnMac = process.platform === 'darwin';
-  if (! (await hasCommandlineTools())) {
+  if (!(await hasCommandlineTools())) {
     console.log('Installing new cmdline-tools.');
     const sdkUrl = isOnMac ? CMDLINE_TOOLS_URL_MAC : CMDLINE_TOOLS_URL_LINUX;
     await exec.exec(`sudo mkdir ${process.env.ANDROID_HOME}/cmdline-tools`);
